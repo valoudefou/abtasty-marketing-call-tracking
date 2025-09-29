@@ -158,7 +158,7 @@ function sendToAbtasty(segmentName) {
   if (window.abtasty && typeof window.abtasty.send === "function") {
     window.abtasty.send("segment", { s: { userType: segmentName } });
   } else {
-    console.warn("AB Tasty SDK not ready yet");
+    console.warn("AB Tasty not ready yet");
   }
 }
 ```
@@ -213,7 +213,7 @@ const pollInterval = setInterval(() => {
 
 ## Usage
 
-1. Include the script after Infinity (_ictt) and AB Tasty SDK are loaded
+1. Include the script after Infinity (_ictt) and AB Tasty  are loaded
 2. Update `eventToSegmentMap` to match the desired Infinity events and AB Tasty segments
 3. No manual push to `_ictt` is required; the script reads existing events automatically
 
@@ -221,45 +221,7 @@ const pollInterval = setInterval(() => {
 
 ## Notes
 
-- Ensure AB Tasty’s SDK is initialized before the script runs
+- Ensure AB Tasty is initialized before the script runs
 - Events must have a unique `id` property for deduplication
 - Polling interval can be adjusted for performance considerations
 
----
-
-# Push vs Pull Integration
-
-## Push Integration
-In a push integration, the source system actively **sends data** to the target system as events occur.
-
-**Characteristics:**
-- Real-time or near real-time updates
-- Initiated by the source system
-- Example: AB Tasty pushes experiment metadata to Infinity when a visitor is exposed to a variation
-
-**Pros:**
-- Immediate data availability
-- Good for event-driven workflows
-- Reduces need for repeated polling
-
-**Cons:**
-- Requires source system to be able to send events
-- Error handling needs careful design
-
----
-
-## Pull Integration
-In a pull integration, the target system **requests data** from the source system on a scheduled basis.
-
-**Characteristics:**
-- Typically batch or scheduled data retrieval
-- Initiated by the target system
-- Example: AB Tasty periodically queries Infinity to fetch updated call data
-
-**Pros:**
-- Easier for systems where the source cannot push
-- Can handle large batch data efficiently
-
-**Cons:**
-- Data may be delayed
-- More load on the target system if polling frequently
