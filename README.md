@@ -116,3 +116,120 @@ This integration allows marketing and analytics teams to attribute phone calls t
 4. Visitor calls the dynamically replaced number.
 5. Infinity links the call to `_ictt` and AB Tasty metadata.
 6. Optional: Call is pushed back to AB Tasty as an offline conversion attributed to the correct campaign/variation.
+
+# Infinity to AB Tasty Segment Sync Script
+
+## Overview
+
+This script automatically maps user events captured by Infinity (_ictt) to AB Tasty segments. It ensures that specific user actions are reflected in AB Tasty in real-time or via a fallback polling mechanism. The script does not push any data to _ictt, it only reads existing events.
+
+## Features
+
+- Supports multiple Infinity event types with configurable mappings to AB Tasty segments.
+- Uses Infinity real-time event listeners when available.
+- Provides a fallback polling mechanism to capture late or missed events.
+- Deduplicates events to avoid sending the same segment multiple times.
+- Non-intrusive: nothing is written back to _ictt.
+
+## Configuration
+
+### Event-to-Segment Mapping
+
+The mapping between Infinity event types and AB Tasty segments is defined in the `eventToSegmentMap` object:
+
+```javascript
+const eventToSegmentMap = {
+  callCompleted: "booked",
+  purchaseCompleted: "purchased",
+  trialStarted: "trial"
+  // add more mappings as needed
+};
+```
+
+- **Key**: Infinity event type (`_ictt.events.type` or `_ictt.on` type).
+- **Value**: Corresponding AB Tasty segment name (`userType`).
+
+### AB Tasty Segment Sending
+
+The `sendToAbtasty` function handles sending segment data to AB Tasty:
+
+```javascript
+function sendToAbtasty(segmentName) {
+  if (window.abtasty && typeof window.abtasty.send === "function") {
+    window.abtasty.send("segment", { s: { userType: segmentName } });
+  } else {
+    console.warn("AB Tasty SDK not ready yet");
+  }
+}
+```
+
+- **Parameters**:
+  - `segmentName` – the user segment to send to AB Tasty.
+
+### Event Handling
+
+The `handleInfinityEvent` function processes events from Infinity:
+
+- Checks if the event has already been processed (prevents duplicates).
+- Maps the event type to an AB Tasty segment using `eventToSegmentMap`.
+- Sends the segment to AB Tasty via `sendToAbtasty`.
+
+```javascript
+const processedEvents = new Set();
+
+function handleInfinityEvent(event) {
+  if (!event || processedEvents.has(event.id)) return;
+
+  const segmentName = eventToSegmentMap[event.type];
+  if (!segmentName) return;
+
+  processedEvents.add(event.id);
+  sendToAbtasty(segmentName);
+}
+```
+
+### Real-Time Subscription
+
+If Infinity provides a listener via `_ictt.on`, the script subscribes to all mapped events:
+
+```javascript
+if (window._ictt && typeof window._ictt.on === "function") {
+  Object.keys(eventToSegmentMap).forEach(eventType => {
+    window._ictt.on(eventType, handleInfinityEvent);
+  });
+}
+```
+
+- Automatically reacts to real-time events.
+- Logs subscribed events for debugging.
+
+### Polling Fallback
+
+If the listener is not available or events are added asynchronously, the script polls `_ictt.events` every 2 seconds:
+
+```javascript
+const pollInterval = setInterval(() => {
+  if (!window._ictt || !Array.isArray(window._ictt.events)) return;
+
+  window._ictt.events.forEach(event => {
+    if (!processedEvents.has(event.id)) {
+      handleInfinityEvent(event);
+    }
+  });
+}, 2000);
+```
+
+- Ensures no events are missed.
+- Deduplicates using `processedEvents` set.
+
+## Usage
+
+1. Include the script after Infinity (_ictt) and AB Tasty SDK are loaded.
+2. Update `eventToSegmentMap` to match the desired Infinity events and AB Tasty segments.
+3. No manual push to _ictt is required; the script reads existing events automatically.
+
+## Notes
+
+- Make sure AB Tasty’s SDK is initialized before the script runs.
+- Events must have a unique `id` property to enable deduplication.
+- The polling interval can be adjusted if needed for performance considerations.
