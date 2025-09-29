@@ -116,7 +116,7 @@ This integration allows marketing and analytics teams to attribute phone calls t
 
 ---
 
-# Infinity Conversion data to AB Tasty Segment/Analytics Sync (pull intgeration)
+# Infinity Conversion data to AB Tasty Segment/Analytics Sync (pull integration)
 
 ## Overview
 
