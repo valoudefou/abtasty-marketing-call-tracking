@@ -1,4 +1,4 @@
-# AB Tasty Data to Infinity Call Tracking Integration (push)
+# AB Tasty data to Infinity Call Tracking Platform (push  )
 
 ## Overview
 
@@ -116,7 +116,7 @@ This integration allows marketing and analytics teams to attribute phone calls t
 
 ---
 
-# Infinity to AB Tasty Segment Sync Script (pull)
+# Infinity Conversion data to AB Tasty Segment/Analytics Sync (pull intgeration)
 
 ## Overview
 
