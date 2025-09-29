@@ -1,4 +1,4 @@
-# AB Tasty data to Infinity Call Tracking Platform (push  )
+# AB Tasty data to Infinity Call Tracking Platform (push integration)
 
 ## Overview
 
