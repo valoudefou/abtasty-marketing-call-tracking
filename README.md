@@ -14,18 +14,22 @@ This integration allows marketing and analytics teams to attribute phone calls t
 
 ```mermaid
 flowchart TD
-    A[Infinity Data Store] -->|Scheduled Fetch| B[Data Puller Script]
-    B --> C[Process & Deduplicate Events]
-    C --> D[Map Infinity Events to AB Tasty]
-    D --> E[Send Data to AB Tasty Analytics API]
-    E --> F[AB Tasty Segments & Reports]
+    A[Visitor Lands on Website] --> B[AB Tasty Assigns Campaign & Variation]
+    B --> C[AB Tasty Exposure Callback]
+    C -->|Push abtasty_* Variables| D[Infinity Session Token (_ictt)]
+    D --> E[Infinity Replaces Phone Number (DNI)]
+    E --> F[Visitor Calls Tracking Number]
+    F --> G[Infinity Call Record with AB Tasty Metadata]
+    G --> H[Reporting & Optional Pushback to AB Tasty]
 
     style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style B fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style C fill:#f1f8e9,stroke:#689f38,stroke-width:2px
-    style D fill:#ede7f6,stroke:#673ab7,stroke-width:2px
+    style B fill:#ede7f6,stroke:#673ab7,stroke-width:2px
+    style C fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style D fill:#f1f8e9,stroke:#689f38,stroke-width:2px
     style E fill:#fce4ec,stroke:#d81b60,stroke-width:2px
-    style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style F fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
+    style G fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style H fill:#e0f7fa,stroke:#006064,stroke-width:2px
 ```
 
 ## Integration Flow
