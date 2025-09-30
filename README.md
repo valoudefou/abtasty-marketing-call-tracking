@@ -13,12 +13,12 @@ This integration allows marketing and analytics teams to attribute phone calls t
 ```mermaid
 flowchart TD
     A[Visitor Lands on Website] --> B[AB Tasty Assigns Campaign & Variation]
-    B --> C[AB Tasty Exposure Callback (DATA pull)]
+    B --> C[AB Tasty Exposure Callback DATA pull]
     C --> D[Push abtasty_* Variables into Infinity]
     D --> E[Infinity Replaces Phone Number via DNI]
     E --> F[Visitor Calls Tracking Number]
     F --> G[Infinity Call Record with AB Tasty Metadata]
-    G --> H[Reporting & Optional Pushback to AB Tasty from Infinity (DATA pull)]
+    G --> H[Reporting & Optional Pushback to AB Tasty from Infinity DATA pull]
 
     style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
     style B fill:#ede7f6,stroke:#673ab7,stroke-width:2px
