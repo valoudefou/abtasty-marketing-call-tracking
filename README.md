@@ -16,8 +16,8 @@ This integration allows marketing and analytics teams to attribute phone calls t
 flowchart TD
     A[Visitor Lands on Website] --> B[AB Tasty Assigns Campaign & Variation]
     B --> C[AB Tasty Exposure Callback]
-    C -->|Push abtasty_* Variables| D[Infinity Session Token (_ictt)]
-    D --> E[Infinity Replaces Phone Number (DNI)]
+    C --> D[Push abtasty_* Variables into Infinity Token]
+    D --> E[Infinity Replaces Phone Number via DNI]
     E --> F[Visitor Calls Tracking Number]
     F --> G[Infinity Call Record with AB Tasty Metadata]
     G --> H[Reporting & Optional Pushback to AB Tasty]
