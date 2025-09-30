@@ -28,8 +28,6 @@ flowchart TD
     style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
 ```
 
----
-
 ## Integration Flow
 
 ### 1. Visitor Lands on Your Site
@@ -61,8 +59,6 @@ flowchart TD
 - If AB Tasty integration is enabled:
   - Calls can be pushed back as **offline conversions**
   - Conversions are attributed to the correct campaign and variation
-
----
 
 ## Example Integration Snippet
 
@@ -97,8 +93,6 @@ flowchart TD
 </script>
 ```
 
----
-
 ## Sample Call Record in Infinity
 
 ```json
@@ -124,8 +118,6 @@ flowchart TD
 }
 ```
 
----
-
 ## End-to-End Flow Summary
 1. Visitor lands on the site and AB Tasty assigns a variant.
 2. AB Tasty pushes `abtasty_*` variables along with `_ictt` to Infinity.
@@ -134,15 +126,11 @@ flowchart TD
 5. Infinity links the call to `_ictt` and AB Tasty metadata.
 6. Optional: Call is pushed back to AB Tasty as an offline conversion attributed to the correct campaign/variation.
 
----
-
 # Infinity Conversion data to AB Tasty Segment/Analytics Sync (pull integration)
 
 ## Overview
 
 This script automatically maps user events captured by Infinity (_ictt) to AB Tasty segments. It ensures that specific user actions are reflected in AB Tasty in real-time or via a fallback polling mechanism. The script reads events from Infinity; it does not write to `_ictt`.
-
----
 
 ## Features
 
@@ -151,8 +139,6 @@ This script automatically maps user events captured by Infinity (_ictt) to AB Ta
 - Provides a fallback polling mechanism to capture late or missed events
 - Deduplicates events to avoid sending the same segment multiple times
 - Non-intrusive: nothing is written back to `_ictt`
-
----
 
 ## Configuration
 
@@ -169,8 +155,6 @@ const eventToSegmentMap = {
 - **Key**: Infinity event type (`_ictt.events.type` or `_ictt.on` type)
 - **Value**: Corresponding AB Tasty segment name (`userType`)
 
----
-
 ### AB Tasty Segment Sending
 
 ```javascript
@@ -182,8 +166,6 @@ function sendToAbtasty(segmentName) {
   }
 }
 ```
-
----
 
 ### Event Handling
 
@@ -201,8 +183,6 @@ function handleInfinityEvent(event) {
 }
 ```
 
----
-
 ### Real-Time Subscription
 
 ```javascript
@@ -212,8 +192,6 @@ if (window._ictt && typeof window._ictt.on === "function") {
   });
 }
 ```
-
----
 
 ### Polling Fallback
 
@@ -229,15 +207,11 @@ const pollInterval = setInterval(() => {
 }, 2000);
 ```
 
----
-
 ## Usage
 
 1. Include the script after Infinity (_ictt) and AB Tasty  are loaded
 2. Update `eventToSegmentMap` to match the desired Infinity events and AB Tasty segments
 3. No manual push to `_ictt` is required; the script reads existing events automatically
-
----
 
 ## Notes
 
