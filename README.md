@@ -113,9 +113,9 @@ flowchart TD
   "utmMedium": "cpc",
   "utmCampaign": "fall_sale",
   "referrer": "https://www.example.com/product-page",
-  "abtasty_campaignId": "CMP_1024",
+  "abtasty_campaignId": "1509468",
   "abtasty_campaignName": "Homepage Banner Test",
-  "abtasty_variationId": "VAR_3",
+  "abtasty_variationId": "1880577",
   "abtasty_variationName": "Green Button Variant",
   "callRecordingUrl": "https://recordings.infinity.co/C123456789.mp3",
   "callNotes": "Lead qualified"
@@ -130,15 +130,15 @@ flowchart TD
 5. Infinity links the call to `_ictt` and AB Tasty metadata.
 6. Optional: Call is pushed back to AB Tasty as an offline conversion attributed to the correct campaign/variation.
 
-# Infinity Conversion data to AB Tasty Segment/Analytics Sync (pull integration)
+# Infinity Conversion Data to AB Tasty Analytics
 
 ## Overview
 
-This script automatically maps user events captured by Infinity (_ictt) to AB Tasty segments. It ensures that specific user actions are reflected in AB Tasty in real-time or via a fallback polling mechanism. The script reads events from Infinity; it does not write to `_ictt`.
+This script automatically maps user events captured by Infinity (_ictt) to AB Tasty. It ensures that specific user actions are reflected in AB Tasty in real-time or via a fallback polling mechanism. The script reads events from Infinity; it does not write to `_ictt`.
 
 ## Features
 
-- Supports multiple Infinity event types with configurable mappings to AB Tasty segments
+- Supports multiple Infinity event types with configurable mappings to AB Tasty
 - Uses Infinity real-time event listeners when available
 - Provides a fallback polling mechanism to capture late or missed events
 - Deduplicates events to avoid sending the same segment multiple times
@@ -152,7 +152,6 @@ This script automatically maps user events captured by Infinity (_ictt) to AB Ta
 const eventToSegmentMap = {
   callCompleted: "booked",
   purchaseCompleted: "purchased",
-  trialStarted: "trial"
 };
 ```
 
@@ -164,9 +163,14 @@ const eventToSegmentMap = {
 ```javascript
 function sendToAbtasty(segmentName) {
   if (window.abtasty && typeof window.abtasty.send === "function") {
-    window.abtasty.send("segment", { s: { userType: segmentName } });
+    window.abtasty.send("event", {
+      ec: "User Interaction",
+      ea: `Segment Assigned: ${segmentName}`,
+      el: "Infinity → AB Tasty Sync",
+      ev: 1
+    });
   } else {
-    console.warn("AB Tasty not ready yet");
+    console.warn("AB Tasty SDK not ready — event not sent");
   }
 }
 ```
