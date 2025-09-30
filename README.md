@@ -16,7 +16,7 @@ This integration allows marketing and analytics teams to attribute phone calls t
 flowchart TD
     A[Infinity Data Store] -->|Scheduled Fetch| B[Data Puller Script]
     B --> C[Process & Deduplicate Events]
-    C --> D[Map Infinity Events to AB Tasty Segments]
+    C --> D[Map Infinity Events to AB Tasty]
     D --> E[Send Data to AB Tasty Analytics API]
     E --> F[AB Tasty Segments & Reports]
 
