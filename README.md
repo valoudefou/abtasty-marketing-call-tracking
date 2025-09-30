@@ -10,6 +10,24 @@ This integration allows marketing and analytics teams to attribute phone calls t
 - Phone calls are linked to the correct experiment variant
 - Offline conversions can be pushed back to AB Tasty
 
+- ## Codeflow Diagram
+
+```mermaid
+flowchart TD
+    A[Infinity Data Store] -->|Scheduled Fetch| B[Data Puller Script]
+    B --> C[Process & Deduplicate Events]
+    C --> D[Map Infinity Events to AB Tasty Segments]
+    D --> E[Send Data to AB Tasty Analytics API]
+    E --> F[AB Tasty Segments & Reports]
+
+    style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style B fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style C fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    style D fill:#ede7f6,stroke:#673ab7,stroke-width:2px
+    style E fill:#fce4ec,stroke:#d81b60,stroke-width:2px
+    style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+```
+
 ---
 
 ## Integration Flow
