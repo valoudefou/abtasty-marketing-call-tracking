@@ -43,6 +43,7 @@ flowchart TD
   - `abtasty_variationId`
   - `abtasty_variationName`
 - Include the **Infinity session token** `_ictt` to link AB Tasty data to the visitor session.
+- [AB Tasty Push Data Connector](https://docs.abtasty.com/integrations/custom-integrations/custom-integration-connector-with-a-rd-party-tool-push-data)
 
 ### 3. Infinity Swaps in a Unique Tracking Number (DNI)
 - Infinity dynamically replaces the phone number on your site with a **unique tracking number**.
