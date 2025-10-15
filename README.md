@@ -1,89 +1,123 @@
-<img src="https://content.partnerpage.io/eyJidWNrZXQiOiJwYXJ0bmVycGFnZS5wcm9kIiwia2V5IjoibWVkaWEvY29udGFjdF9pbWFnZXMvMDUwNGZlYTYtOWIxNy00N2IyLTg1YjUtNmY5YTZjZWU5OTJiLzI1NjhmYjk4LTQwM2ItNGI2OC05NmJiLTE5YTg1MzU3ZjRlMS5wbmciLCJlZGl0cyI6eyJ0b0Zvcm1hdCI6IndlYnAiLCJyZXNpemUiOnsid2lkdGgiOjEyMDAsImhlaWdodCI6NjI3LCJmaXQiOiJjb250YWluIiwiYmFja2dyb3VuZCI6eyJyIjoyNTUsImciOjI1NSwiYiI6MjU1LCJhbHBoYSI6MH19fX0=" alt="AB Tasty logo" width="350"/>
+# AB Tasty ⇄ Infinity Integration Guide
 
-# AB Tasty to Infinity Call Tracking Platform
+## 1. Overview
 
-## Overview
+This integration enables marketing and analytics teams to accurately attribute phone calls and offline conversions to AB Tasty experiments. Key benefits include:
 
-This integration allows marketing and analytics teams to attribute phone calls to AB Tasty experiments by pushing campaign and variation data into Infinity. Key benefits:
-
-- AB Tasty exposure is tied to the visitor session
-- Phone calls are linked to the correct experiment variant
-- Offline conversions can be pushed back to AB Tasty
+- Persistent tracking of AB Tasty exposure for visitor sessions  
+- Linking phone calls to the correct experiment variant  
+- Pushing offline conversions back into AB Tasty for complete attribution  
 
 ```mermaid
 flowchart TD
     A[Visitor Lands on Website] --> B[AB Tasty Assigns Campaign & Variation]
-    B --> C[AB Tasty Exposure Callback DATA pull]
-    C --> D[Push abtasty_* Variables into Infinity]
-    D --> E[Infinity Replaces Phone Number via DNI]
-    E --> F[Visitor Calls Tracking Number]
-    F --> G[Infinity Call Record with AB Tasty Metadata]
-    G --> H[Reporting & Optional Pushback to AB Tasty from Infinity DATA pull]
+    B --> C[Push abtasty_* Variables into Infinity]
+    C --> D[Infinity Dynamically Replaces Phone Number (DNI)]
+    D --> E[Visitor Calls Tracking Number]
+    E --> F[Infinity Logs Call with AB Tasty Metadata]
+    F --> G[Optional Pushback to AB Tasty as Offline Conversion]
 
     style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
     style B fill:#ede7f6,stroke:#673ab7,stroke-width:2px
     style C fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     style D fill:#f1f8e9,stroke:#689f38,stroke-width:2px
     style E fill:#fce4ec,stroke:#d81b60,stroke-width:2px
-    style F fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
-    style G fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    style H fill:#e0f7fa,stroke:#006064,stroke-width:2px
+    style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style G fill:#e0f7fa,stroke:#006064,stroke-width:2px
+``` 
+
+## 2. Current Integration Limitations
+
+- Only tracks phone calls (goals) in Infinity  
+- Cannot handle CRM transactional data via Events API or Smart Match  
+- Lacks persistent variable support across sessions  
+
+## 3. New Infinity Scope
+
+### 3.1 Collecting Variables
+
+Infinity can capture custom JS variables in a visitor session using the `_its('setVariable', ...)` method. Variables support different scopes:
+
+| Scope | Behaviour |
+|-------|-----------|
+| `page` | Default, applies only to the current page |
+| `land` | Persists until the next landing page; updated only on new landings |
+| `visit` | Persists for the session; updated only if not previously set |
+
+**Example:**
+
+```javascript
+window._its('setVariable', 'abtasty_campaignId', abtasty_campaignId, 'visit');
 ```
 
-## Integration Flow
+Variables are prefixed with `c_` in Infinity API, e.g. `c_abtasty_campaignId`.
 
-### 1. Visitor Lands on Your Site
-- Infinity’s script (`nas.v1.min.js`) initializes and creates a **visitor session/profile**.
-- AB Tasty assigns the visitor to a **campaign** and **variation**.
+### 3.2 Infinity API
 
-### 2. AB Tasty Exposes Campaign Data
-- During the **exposure callback**, push four custom variables into Infinity:
-  - `abtasty_campaignId`
-  - `abtasty_campaignName`
-  - `abtasty_variationId`
-  - `abtasty_variationName`
-- Include the **Infinity session token** `_ictt` to link AB Tasty data to the visitor session.
+The **Triggers API** allows retrieval of calls and other Goal data. Example request:
 
-[AB Tasty Documentation Push Data](https://docs.abtasty.com/integrations/custom-integrations/custom-integration-connector-with-a-rd-party-tool-push-data)
+```http
+GET https://api.infinitycloud.com/reports/v2/igrps/{IGRP_ID}/triggers/goals?startDate=2025-10-01&endDate=2025-10-31&limit=500&display[]=c_abtasty_campaignId&display[]=c_abtasty_variationId
+```
 
-### 3. Infinity Swaps in a Unique Tracking Number (DNI)
-- Infinity dynamically replaces the phone number on your site with a **unique tracking number**.
-- The number is tied to the visitor/session identified by `_ictt`.
+- `{IGRP_ID}`: Infinity Installation ID  
+- `display[]`: Filter for AB Tasty variables  
+- Authentication: API key required ([docs](https://kb.infinity.co/service/api/v2.1_authorisation.html))  
 
-### 4. Visitor Calls the Number
-- Infinity routes the call normally.
-- The call is linked to:
-  - **Visitor session ID**
-  - **Infinity session token** `_ictt`
-  - **AB Tasty campaign/variation metadata**
-  - **Other attribution data** (UTMs, referrer, source, etc.)
+### 3.3 Webhooks
 
-### 5. Reporting and Pushback
-- Call logs in Infinity will display AB Tasty fields alongside the call.
-- If AB Tasty integration is enabled:
-  - Calls can be pushed back as **offline conversions**
-  - Conversions are attributed to the correct campaign and variation
+- Infinity can push call data to AB Tasty via **GET/POST webhooks**  
+- Webhooks are unauthenticated  
+- Suitable for automating pushes with AB Tasty variables  
 
-## Example Integration Snippet DATA push from AB Tasty to Infinity
+## 4. Integration Flow
+
+### 4.1 Visitor Lands on Website
+- Infinity script (`nas.v1.min.js`) initializes a **visitor session/profile**  
+- AB Tasty assigns a **campaign** and **variation**  
+
+### 4.2 AB Tasty Exposure Callback
+Push AB Tasty metadata to Infinity:
+
+```javascript
+_ictt.push(['_setCustomVar', 'abtasty_campaignId', data.campaignId]);
+_ictt.push(['_setCustomVar', 'abtasty_campaignName', data.campaignName]);
+_ictt.push(['_setCustomVar', 'abtasty_variationId', data.variationId]);
+_ictt.push(['_setCustomVar', 'abtasty_variationName', data.variationName]);
+```
+
+Include `_ictt` (Infinity session token) for linking.
+
+### 4.3 Dynamic Number Insertion (DNI)
+- Infinity replaces the on-page number with a **unique tracking number**  
+- Number is tied to `_ictt` and AB Tasty metadata  
+
+### 4.4 Call Tracking
+- Call data logged with:
+  - Visitor session ID  
+  - Infinity session token `_ictt`  
+  - AB Tasty campaign/variation  
+  - Attribution data (UTMs, referrer, source)  
+
+### 4.5 Reporting and Pushback
+- AB Tasty integration enables **offline conversion pushback**  
+- Conversions are attributed to the correct campaign/variation  
+
+## 5. Example AB Tasty → Infinity Snippet
 
 ```html
 <script type="text/javascript">
   (function() {
     var ict = document.createElement('script');
-    ict.type = 'text/javascript';
     ict.async = true;
-    ict.src = (document.location.protocol === 'https:' ? 'https://' : 'http://')
+    ict.src = (document.location.protocol === 'https:' ? 'https://' : 'http://') 
               + 'ict.infinity-tracking.net/js/nas.v1.min.js';
-    ict.onload = function() {
-      console.log("Infinity script loaded");
-    };
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ict, s);
+    document.getElementsByTagName('script')[0].parentNode.insertBefore(ict, document.getElementsByTagName('script')[0]);
   })();
 
   window.ABTastyExposure = function(data) {
     function tryPush() {
-      if (window._ictt && typeof window._ictt.push === 'function') {
+      if (window._ictt && typeof _ictt.push === 'function') {
         _ictt.push(['_setCustomVar', 'abtasty_campaignId', data.campaignId]);
         _ictt.push(['_setCustomVar', 'abtasty_campaignName', data.campaignName]);
         _ictt.push(['_setCustomVar', 'abtasty_variationId', data.variationId]);
@@ -97,7 +131,7 @@ flowchart TD
 </script>
 ```
 
-## Sample Call Record in Infinity
+## 6. Sample Call Record
 
 ```json
 {
@@ -122,57 +156,15 @@ flowchart TD
 }
 ```
 
-## End-to-End Flow Summary
-1. Visitor lands on the site and AB Tasty assigns a variant.
-2. AB Tasty pushes `abtasty_*` variables along with `_ictt` to Infinity.
-3. Infinity assigns a unique tracking number (DNI).
-4. Visitor calls the dynamically replaced number.
-5. Infinity links the call to `_ictt` and AB Tasty metadata.
-6. Optional: Call is pushed back to AB Tasty as an offline conversion attributed to the correct campaign/variation.
-
-# Infinity Conversion Data to AB Tasty Analytics
-
-## Overview
-
-This script automatically maps user events captured by Infinity (_ictt) to AB Tasty. It ensures that specific user actions are reflected in AB Tasty in real-time or via a fallback polling mechanism. The script reads events from Infinity; it does not write to `_ictt`.
-
-## Features
-
-- Supports multiple Infinity event types with configurable mappings to AB Tasty
-- Uses Infinity real-time event listeners when available
-- Provides a fallback polling mechanism to capture late or missed events
-- Deduplicates events to avoid sending the same segment multiple times
-- Non-intrusive: nothing is written back to `_ictt`
-
-## Configuration
+## 7. Infinity → AB Tasty Event Mapping
 
 ### Event-to-Segment Mapping
 
 ```javascript
 const eventToSegmentMap = {
   callCompleted: "booked",
-  purchaseCompleted: "purchased",
+  purchaseCompleted: "purchased"
 };
-```
-
-- **Key**: Infinity event type (`_ictt.events.type` or `_ictt.on` type)
-- **Value**: Corresponding AB Tasty segment name (`userType`)
-
-### AB Tasty Segment Sending
-
-```javascript
-function sendToAbtasty(segmentName) {
-  if (window.abtasty && typeof window.abtasty.send === "function") {
-    window.abtasty.send("event", {
-      ec: "User Interaction",
-      ea: `Segment Assigned: ${segmentName}`,
-      el: "Infinity → AB Tasty Sync",
-      ev: 1
-    });
-  } else {
-    console.warn("AB Tasty SDK not ready — event not sent");
-  }
-}
 ```
 
 ### Event Handling
@@ -182,48 +174,43 @@ const processedEvents = new Set();
 
 function handleInfinityEvent(event) {
   if (!event || processedEvents.has(event.id)) return;
-
   const segmentName = eventToSegmentMap[event.type];
   if (!segmentName) return;
-
   processedEvents.add(event.id);
   sendToAbtasty(segmentName);
 }
-```
 
-### Real-Time Subscription
-
-```javascript
-if (window._ictt && typeof window._ictt.on === "function") {
-  Object.keys(eventToSegmentMap).forEach(eventType => {
-    window._ictt.on(eventType, handleInfinityEvent);
-  });
+function sendToAbtasty(segmentName) {
+  if (window.abtasty && typeof window.abtasty.send === "function") {
+    window.abtasty.send("event", {
+      ec: "User Interaction",
+      ea: `Segment Assigned: ${segmentName}`,
+      el: "Infinity → AB Tasty Sync",
+      ev: 1
+    });
+  }
 }
 ```
 
-### Polling Fallback
+### Subscription & Polling
 
 ```javascript
-const pollInterval = setInterval(() => {
-  if (!window._ictt || !Array.isArray(window._ictt.events)) return;
-
-  window._ictt.events.forEach(event => {
-    if (!processedEvents.has(event.id)) {
-      handleInfinityEvent(event);
-    }
+// Real-time subscription
+if (window._ictt && typeof window._ictt.on === "function") {
+  Object.keys(eventToSegmentMap).forEach(eventType => {
+    _ictt.on(eventType, handleInfinityEvent);
   });
+}
+
+// Polling fallback
+setInterval(() => {
+  if (!_ictt || !Array.isArray(_ictt.events)) return;
+  _ictt.events.forEach(event => handleInfinityEvent(event));
 }, 2000);
 ```
 
-## Usage
+## 8. Key Notes
 
-1. Include the script after Infinity (_ictt) and AB Tasty  are loaded
-2. Update `eventToSegmentMap` to match the desired Infinity events and AB Tasty segments
-3. No manual push to `_ictt` is required; the script reads existing events automatically
-
-## Notes
-
-- Ensure AB Tasty is initialized before the script runs
-- Events must have a unique `id` property for deduplication
-- Polling interval can be adjusted for performance considerations
-
+- AB Tasty SDK must be loaded before the script runs  
+- Infinity events require unique `id` for deduplication  
+- Polling interval can be adjusted for performance
