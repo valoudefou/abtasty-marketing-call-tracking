@@ -12,7 +12,7 @@ This integration enables marketing and analytics teams to accurately attribute p
 flowchart TD
     A[Visitor Lands on Website] -->|Visitor session starts| B[AB Tasty Assigns Campaign & Variation]
     B -->|Push experiment metadata| C[Push abtasty_* Variables into Infinity]
-    C -->|Dynamically replace phone numbers| D[Infinity Replaces Phone Number (DNI)]
+    C -->|Dynamically replace phone numbers| D[Infinity Replaces Phone Number DNI]
     D -->|Visitor calls unique number| E[Visitor Calls Tracking Number]
     E -->|Log call with metadata| F[Infinity Logs Call with AB Tasty Metadata]
     F -->|Optional offline conversion push| G[Pushback to AB Tasty as Offline Conversion]
