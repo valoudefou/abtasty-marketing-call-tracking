@@ -10,12 +10,12 @@ This integration enables marketing and analytics teams to accurately attribute p
 
 ```mermaid
 flowchart TD
-    A[Visitor Lands on Website] --> B[AB Tasty Assigns Campaign & Variation]
-    B --> C[Push abtasty_* Variables into Infinity]
-    C --> D[Infinity Dynamically Replaces Phone Number (DNI)]
-    D --> E[Visitor Calls Tracking Number]
-    E --> F[Infinity Logs Call with AB Tasty Metadata]
-    F --> G[Optional Pushback to AB Tasty as Offline Conversion]
+    A[Visitor Lands on Website] -->|Visitor session starts| B[AB Tasty Assigns Campaign & Variation]
+    B -->|Push experiment metadata| C[Push abtasty_* Variables into Infinity]
+    C -->|Dynamically replace phone numbers| D[Infinity Replaces Phone Number (DNI)]
+    D -->|Visitor calls unique number| E[Visitor Calls Tracking Number]
+    E -->|Log call with metadata| F[Infinity Logs Call with AB Tasty Metadata]
+    F -->|Optional offline conversion push| G[Pushback to AB Tasty as Offline Conversion]
 
     style A fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
     style B fill:#ede7f6,stroke:#673ab7,stroke-width:2px
@@ -24,7 +24,7 @@ flowchart TD
     style E fill:#fce4ec,stroke:#d81b60,stroke-width:2px
     style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
     style G fill:#e0f7fa,stroke:#006064,stroke-width:2px
-``` 
+```
 
 ## 2. Current Integration Limitations
 
